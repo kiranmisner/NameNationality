@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>API Fun!</title>
+	<style> 
+		body {
+			text-align: center;
+			background-color: #C0C0C0;
+		}
+	</style>
+</head>
+</head>
+<body>
+<!-- 	Styling and an important note to users -->
+	<h1 style = "text-align: center;"> API Fun: Guessing your nationality based on your name! </h1>
+	Note: It is expected behavior that if your name is uncommon/you have a typo, the program may not
+	respond as the API would not have returned anything. <br> <br> 
+<!-- 	Form that takes in the name to nationalize -->
+	<form>
+		Enter your name: <input type = "text" id = "name"> 
+<!-- 		Button, which when clicked, calls the functions needed to present the nationality.
+ -->		<input type = "button" onclick="getCountry()" value = "Go!"> 
+	</form>
+<!-- 	Div used to display the data
+ -->	<div id = "countryname" style = "text-align: center;" ></div>
+
+	<script>
+		function getCountry() {
+			var name_person = document.getElementById("name").value;
+			/* Step 1: Make instance of request object...
+			...to make HTTP request after page is loaded*/
+			request = new XMLHttpRequest();
+			console.log("1 - request object created");
+
+			// Step 2: Set the URL for the AJAX request to be the JSON file
+ 
+			request.open("GET", "https://api.nationalize.io?name=" + name_person, true);
+			console.log("2 - opened request file");
+ 
+			// Step 3: set up event handler/callback
+
+			request.onreadystatechange = function() {
+				console.log("3 - readystatechange event fired.");
+ 
+				if (request.readyState == 4 && request.status == 200) {
+					// Step 5: wait for done + success
+
+					result = request.responseText;
+					countryinfo = JSON.parse(result);
+					if (countryinfo.country[0].country_id == "") {
+						document.getElementById("data").innerHTML = "Data is not available on this name.";
+						return;
+					}
+					getFullName(countryinfo.country[0].country_id)
+					
+				}
+				// If something went wrong when loading/request to API
+				else if (request.readyState == 4 && request.status != 200) {
+					console.log("something went wrong!");
+				}
+
+				// If something is too soon and it hasn't loaded fully
+				else if (request.readyState == 3) {
+					console.log("too soon!");
+
+				}
+
+			}
+		// Step 4: fire off the HTTP request
+			request.send();
+			console.log("4 - Request sent");
+		}
+
+		// Second function to convert from country code to full country name 
+		function getFullName(country_code) {
+			request = new XMLHttpRequest();
+			console.log("1 - request object created");
+ 
+			// Step 2: Set the URL for the AJAX request to be the JSON file
+			request.open("GET", "https://restcountries.eu/rest/v2/alpha/" + country_code, true);
+
+			console.log("2 - opened request file");
+ 
+			// Step 3: set up event handler/callback
+			request.onreadystatechange = function() {
+				console.log("3 - readystatechange event fired.");
+ 
+				if (request.readyState == 4 && request.status == 200) {
+					// Step 5: wait for done + success
+
+					result = request.responseText;
+					countryinfo = JSON.parse(result);
+					document.getElementById("countryname").innerHTML ="We think you are from: " + "<h4>" + countryinfo["name"] + "</h4>"; 
+					
+				}
+				// If something went wrong when loading/request to API
+				else if (request.readyState == 4 && request.status != 200) {
+					console.log("something went wrong");
+				}
+
+				// If something is too soon and it hasn't loaded fully
+				else if (request.readyState == 3) {
+					console.log("too soon!")
+				}
+
+			}
+		// Step 4: fire off the HTTP request
+			request.send();
+			console.log("4 - Request sent");
+
+		}
+	</script>
+	<!-- Line to seperate the program from the answers to HW questions -->
+	<hr style = "border-color: black">
+	<div id = "questions">
+		<h2> The APIs I Used </h2>
+		I used two different APIs, the nationalize.io API and the REST Countries API. The nationalize.io API is designed to take in a name and return (in a JSON Object) the countries it calculates you are from and the probablities of each country. It gives 
+		the country in terms of a 2 character country code (e.g. 'US' for the United States). The REST countries API on the otherhand,
+		can return a lot of information about a certain company in a JSON object; including but not limited to a certain countries currency, language, capital city, and calling code. It gets this information after you provide a 1 or 2 digit country code or the country's name. 
+		<br>
+		<h2> Websites of the APIs </h2>
+		Both APIs were found using: https://github.com/public-apis/public-apis <br>
+		&#9; Nationalize.io API: https://nationalize.io/ <br>
+		&#9; REST Countries API: https://restcountries.eu/ 
+		<br>
+		<h2> Describing the Options I Used </h2>
+		For the nationalize.io API, the only option (parameter) that the api takes is a name. For my specific program, I passed in the value of the form where the user would input their name. In relation to the API, this parameter is the sole determiner of the country that is returned back to you. The API may not have information on all names, so if the name is typed in and it is not a common name/has a typo, nothing may be returned and the page will remain silent.<br> <br>
+
+		For the REST countries API, I passed the 2 character country code as the sole parameter. The API has other options to get the same result, including a 3 character country code or the full name of the country code, but I chose this one as it was the nationalize.io API used. For my page, I just passed whatever the nationalize.io API returned as the country code into the 
+		REST countries API, where the API would return me the full information of the country. The purpose of the parameter is to allow the API to find the country that you want to refer to; otherwise it would have no information to the find the country off of. It is important to note that the value given back from this API is completely dependent on the result from the nationalize.io API, so if one of the APIs is not synchronous with the other, it could produce bad results. 
+		<br>
+		<h2> Give 2 Application Where These APIS Would Be Helpful </h2>
+	    Nationalize.io: 
+		<br> This API would be useful when conducting research on demographics, because you would be able to get a sense 
+		of where your population is from. Furthermore, nationalize.io can be used in marketing analytics, where knowing where your customers backgrounds could be from could help you cater to their needs as well as possible. 
+
+		<br> <br>
+		REST Countries: 
+		<br>
+		The REST countries API can be incredibly useful when doing any analysis on international pricing, because they provide information about different currencies, including all the places they are used and the number of people using that 
+		currency. Furthermore, can be used to match different countries to their calling codes, which can be especially 
+		useful for companies that have international offices with users have to call different phone numbers depending on
+		where they live. 	
+	</div>
+	<br> <br> 
+</body>
+</html>
